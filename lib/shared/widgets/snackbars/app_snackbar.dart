@@ -21,6 +21,7 @@ class AppSnackbar {
     String? actionLabel,
     VoidCallback? onAction,
     Duration duration = const Duration(seconds: 3),
+    bool showAtTop = false,
   }) {
     final colors = Theme.of(context).extension<AppColorExtension>()!;
     final isDark = Theme.of(context).brightness == Brightness.dark;
@@ -54,6 +55,9 @@ class AppSnackbar {
         icon = Icons.info_outline_rounded;
     }
 
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
+    final double topMargin = statusBarHeight > 0 ? statusBarHeight + 12 : 24;
+
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -63,9 +67,17 @@ class AppSnackbar {
           backgroundColor: bg,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.radiusLg),
+            borderRadius: BorderRadius.circular(100),
           ),
-          margin: const EdgeInsets.all(AppConstants.sp16),
+          margin: showAtTop
+              ? EdgeInsets.only(
+                  top: topMargin,
+                  bottom: MediaQuery.of(context).size.height - topMargin - 80,
+                  left: AppConstants.sp16,
+                  right: AppConstants.sp16,
+                )
+              : const EdgeInsets.all(AppConstants.sp16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           content: Row(
             children: [
               Icon(icon, size: 20, color: iconColor),
@@ -95,15 +107,15 @@ class AppSnackbar {
 
   // ── Convenience shortcuts ─────────────────────────────────
 
-  static void success(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction}) =>
-      show(context, message: message, type: AppSnackbarType.success, actionLabel: actionLabel, onAction: onAction);
+  static void success(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction, bool showAtTop = false}) =>
+      show(context, message: message, type: AppSnackbarType.success, actionLabel: actionLabel, onAction: onAction, showAtTop: showAtTop);
 
-  static void error(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction}) =>
-      show(context, message: message, type: AppSnackbarType.error, actionLabel: actionLabel, onAction: onAction);
+  static void error(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction, bool showAtTop = false}) =>
+      show(context, message: message, type: AppSnackbarType.error, actionLabel: actionLabel, onAction: onAction, showAtTop: showAtTop);
 
-  static void warning(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction}) =>
-      show(context, message: message, type: AppSnackbarType.warning, actionLabel: actionLabel, onAction: onAction);
+  static void warning(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction, bool showAtTop = false}) =>
+      show(context, message: message, type: AppSnackbarType.warning, actionLabel: actionLabel, onAction: onAction, showAtTop: showAtTop);
 
-  static void info(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction}) =>
-      show(context, message: message, type: AppSnackbarType.info, actionLabel: actionLabel, onAction: onAction);
+  static void info(BuildContext context, String message, {String? actionLabel, VoidCallback? onAction, bool showAtTop = false}) =>
+      show(context, message: message, type: AppSnackbarType.info, actionLabel: actionLabel, onAction: onAction, showAtTop: showAtTop);
 }

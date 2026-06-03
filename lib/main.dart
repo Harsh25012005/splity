@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/index.dart';
-import 'shared/widgets/design_system_page.dart';
+import 'core/navigation/router.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +13,7 @@ class SplityApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Splity',
       debugShowCheckedModeBanner: false,
 
@@ -22,7 +22,7 @@ class SplityApp extends StatelessWidget {
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system, // follows device setting
 
-      home: const DesignSystemPage(),
+      routerConfig: appRouter,
     );
   }
 }

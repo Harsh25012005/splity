@@ -25,6 +25,7 @@ class AppButton extends StatelessWidget {
     this.isFullWidth = false,
     this.leadingIcon,
     this.trailingIcon,
+    this.hasShadow = true,
   });
 
   final String label;
@@ -35,6 +36,7 @@ class AppButton extends StatelessWidget {
   final bool isFullWidth;
   final IconData? leadingIcon;
   final IconData? trailingIcon;
+  final bool hasShadow;
 
   bool get _disabled => onPressed == null && !isLoading;
 
@@ -155,27 +157,54 @@ class AppButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(AppConstants.radiusFull),
     );
 
-    Widget btn = Material(
-      color: bg,
-      borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-      child: InkWell(
-        onTap: (_disabled || isLoading) ? null : onPressed,
+    final isPrimary = variant == AppButtonVariant.primary && !_disabled;
+
+    Widget btn = Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppConstants.radiusFull),
-        customBorder: shape,
-        splashColor: fg.withValues(alpha: 0.1),
-        highlightColor: fg.withValues(alpha: 0.06),
-        child: Container(
-          height: _height,
-          padding: _padding,
-          decoration: border != null
-              ? BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(AppConstants.radiusFull),
-                  border: Border.all(color: border, width: 1.5),
-                )
-              : null,
-          alignment: Alignment.center,
-          child: content,
+        gradient: isPrimary
+            ? LinearGradient(
+                colors: isDark
+                    ? [c.primary400, c.primary600]
+                    : [const Color(0xFF3897FF), const Color(0xFF0055FF)],
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+              )
+            : null,
+        boxShadow: isPrimary && hasShadow
+            ? [
+                BoxShadow(
+                  color: (isDark ? c.primary500 : const Color(0xFF0055FF))
+                      .withValues(alpha: 0.35),
+                  blurRadius: 12,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 5),
+                ),
+              ]
+            : null,
+      ),
+      child: Material(
+        color: isPrimary ? Colors.transparent : bg,
+        borderRadius: BorderRadius.circular(AppConstants.radiusFull),
+        child: InkWell(
+          onTap: (_disabled || isLoading) ? null : onPressed,
+          borderRadius: BorderRadius.circular(AppConstants.radiusFull),
+          customBorder: shape,
+          splashColor: fg.withValues(alpha: 0.15),
+          highlightColor: fg.withValues(alpha: 0.08),
+          child: Container(
+            height: _height,
+            padding: _padding,
+            decoration: border != null
+                ? BoxDecoration(
+                    borderRadius:
+                        BorderRadius.circular(AppConstants.radiusFull),
+                    border: Border.all(color: border, width: 1.5),
+                  )
+                : null,
+            alignment: Alignment.center,
+            child: content,
+          ),
         ),
       ),
     );

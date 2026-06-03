@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import '../../../core/constants/app_constants.dart';
@@ -33,6 +34,8 @@ class AppTextField extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.maxLength,
+    this.showCounter = true,
+    this.inputFormatters,
   });
 
   final TextEditingController? controller;
@@ -57,17 +60,18 @@ class AppTextField extends StatefulWidget {
   final FocusNode? focusNode;
   final bool autofocus;
   final int? maxLength;
+  final bool showCounter;
+  final List<TextInputFormatter>? inputFormatters;
 
   @override
   State<AppTextField> createState() => _AppTextFieldState();
 }
 
 class _AppTextFieldState extends State<AppTextField> {
-  bool _obscureText = true;
+  final bool _obscureText = true;
   late FocusNode _focusNode;
   late TextEditingController _controller;
   bool _isFocused = false;
-  bool _hasText = false;
 
   @override
   void initState() {
@@ -75,8 +79,6 @@ class _AppTextFieldState extends State<AppTextField> {
     _focusNode = widget.focusNode ?? FocusNode();
     _focusNode.addListener(_onFocusChange);
     _controller = widget.controller ?? TextEditingController();
-    _controller.addListener(_onTextChange);
-    _hasText = _controller.text.isNotEmpty;
   }
 
   @override
@@ -87,13 +89,6 @@ class _AppTextFieldState extends State<AppTextField> {
   }
 
   void _onFocusChange() => setState(() => _isFocused = _focusNode.hasFocus);
-  void _onTextChange() => setState(() => _hasText = _controller.text.isNotEmpty);
-
-  void _clearText() {
-    _controller.clear();
-    widget.onChanged?.call('');
-    setState(() => _hasText = false);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +105,7 @@ class _AppTextFieldState extends State<AppTextField> {
     } else if (_isFocused) {
       borderColor = isDark ? c.primary400 : c.primary600;
     } else {
-      borderColor = isDark ? c.surface3 : c.neutral200;
+      borderColor = Colors.transparent;
     }
 
     final border = OutlineInputBorder(
@@ -118,36 +113,6 @@ class _AppTextFieldState extends State<AppTextField> {
       borderSide: BorderSide.none,
     );
 
-    // ── Suffix widget ───────────────────────────────────────
-    Widget? suffix;
-    if (widget.isPassword) {
-      suffix = GestureDetector(
-        onTap: () => setState(() => _obscureText = !_obscureText),
-        child: Icon(
-          _obscureText ? Iconsax.eye : Iconsax.eye_slash,
-          size: AppConstants.iconMd,
-          color: isDark ? c.neutral400 : c.neutral500,
-        ),
-      );
-    } else if (widget.enabled && _hasText && _isFocused && !widget.isMultiline) {
-      suffix = GestureDetector(
-        onTap: _clearText,
-        child: Icon(
-          Iconsax.close_circle,
-          size: AppConstants.iconMd,
-          color: isDark ? c.neutral400 : c.neutral500,
-        ),
-      );
-    } else if (widget.suffixIcon != null) {
-      suffix = GestureDetector(
-        onTap: widget.onSuffixTap,
-        child: Icon(
-          widget.suffixIcon,
-          size: AppConstants.iconMd,
-          color: isDark ? c.neutral400 : c.neutral500,
-        ),
-      );
-    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -171,7 +136,7 @@ class _AppTextFieldState extends State<AppTextField> {
                             : (isDark ? c.neutral300 : c.neutral700)),
                   ),
                 ),
-              if (widget.maxLength != null && _isFocused)
+              if (widget.maxLength != null && _isFocused && widget.showCounter)
                 Text(
                   '${_controller.text.length}/${widget.maxLength}',
                   style: GoogleFonts.plusJakartaSans(
@@ -191,9 +156,12 @@ class _AppTextFieldState extends State<AppTextField> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(AppConstants.radiusFull),
             color: !widget.enabled
-                ? (isDark ? c.surface3 : c.neutral100)
-                : (isDark ? c.surface2.withValues(alpha: 0.7) : c.surface),
-            border: Border.all(color: borderColor, width: _isFocused || hasError ? 1.5 : 1.0),
+                ? (isDark ? c.surface3 : c.neutral200)
+                : (isDark ? c.surface3 : c.neutral200),
+            border: Border.all(
+              color: borderColor,
+              width: _isFocused || hasError ? 1.5 : 1.0,
+            ),
             boxShadow: null,
           ),
           child: TextField(
@@ -211,12 +179,12 @@ class _AppTextFieldState extends State<AppTextField> {
             textInputAction: widget.textInputAction,
             onChanged: (val) {
               widget.onChanged?.call(val);
-              setState(() => _hasText = val.isNotEmpty);
             },
             onSubmitted: widget.onSubmitted,
             onTap: widget.onTap,
             autofocus: widget.autofocus,
             maxLength: widget.maxLength,
+            inputFormatters: widget.inputFormatters,
             style: GoogleFonts.plusJakartaSans(
               fontSize: 14,
               fontWeight: FontWeight.w500,
@@ -251,19 +219,12 @@ class _AppTextFieldState extends State<AppTextField> {
                       ),
                     )
                   : null,
-              suffixIcon: suffix != null
-                  ? Padding(
-                      padding: const EdgeInsets.only(right: 14),
-                      child: suffix,
-                    )
-                  : null,
-              suffixIconConstraints:
-                  const BoxConstraints(minWidth: 40, minHeight: 40),
+              suffixIcon: null,
               prefixIconConstraints:
-                  const BoxConstraints(minWidth: 48, minHeight: 48),
+                  const BoxConstraints(minWidth: 54, minHeight: 54),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 18,
-                vertical: 14,
+                vertical: 18,
               ),
               border: border,
               enabledBorder: border,

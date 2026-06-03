@@ -128,7 +128,7 @@ class _AppOtpFieldState extends State<AppOtpField> {
           const SizedBox(height: AppConstants.sp8),
         ],
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(widget.length, (index) {
             final isFocused = _isFocusedList[index];
             final Color borderColor;
@@ -137,12 +137,14 @@ class _AppOtpFieldState extends State<AppOtpField> {
             } else if (isFocused) {
               borderColor = isDark ? c.primary400 : c.primary600;
             } else {
-              borderColor = isDark ? c.surface3 : c.neutral200;
+              borderColor = Colors.transparent;
             }
 
-            return SizedBox(
-              width: 50,
-              height: 50,
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: SizedBox(
+                width: 64,
+                height: 64,
               child: CallbackShortcuts(
                 bindings: <ShortcutActivator, VoidCallback>{
                   const SingleActivator(LogicalKeyboardKey.backspace): () {
@@ -159,12 +161,12 @@ class _AppOtpFieldState extends State<AppOtpField> {
                 child: AnimatedContainer(
                   duration: AppConstants.durationFast,
                   margin: const EdgeInsets.all(2.0),
-                  clipBehavior: Clip.antiAlias,
+                  clipBehavior: Clip.none,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: !widget.enabled
-                        ? (isDark ? c.surface3 : c.neutral100)
-                        : (isDark ? c.surface2.withValues(alpha: 0.7) : c.surface),
+                        ? (isDark ? c.surface3 : c.neutral200)
+                        : (isDark ? c.surface3 : c.neutral200),
                     border: Border.all(
                       color: borderColor,
                       width: isFocused ? 1.5 : 1.0,
@@ -175,6 +177,8 @@ class _AppOtpFieldState extends State<AppOtpField> {
                       controller: _controllers[index],
                       focusNode: _focusNodes[index],
                       enabled: widget.enabled,
+                      showCursor: false,
+                      enableInteractiveSelection: false,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
                       maxLength: 2, // allows backspace logic to register more easily if typed fast
@@ -199,6 +203,8 @@ class _AppOtpFieldState extends State<AppOtpField> {
                         }
                       },
                       decoration: const InputDecoration(
+                        filled: false,
+                        fillColor: Colors.transparent,
                         border: InputBorder.none,
                         enabledBorder: InputBorder.none,
                         focusedBorder: InputBorder.none,
@@ -211,7 +217,7 @@ class _AppOtpFieldState extends State<AppOtpField> {
                   ),
                 ),
               ),
-            );
+            ),);
           }),
         ),
       ],
